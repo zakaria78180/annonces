@@ -1,0 +1,1125 @@
+{
+	"info": {
+		"_postman_id": "petites-annonces-api",
+		"name": "Petites Annonces - API REST",
+		"description": "Collection complete pour tester l'API REST du systeme de petites annonces.\n\n**Base URL**: http://localhost/php-annonces\n\n**Comptes de test**:\n- Admin: admin@annonces.com / admin123\n- User: user@test.com / user123\n\n**Important**: Executez d'abord \"Connexion\" pour obtenir une session valide avant de tester les endpoints proteges.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/php-annonces",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentification",
+			"item": [
+				{
+					"name": "1.1 Inscription",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Test Postman\",\n    \"email\": \"postman@test.com\",\n    \"mot_de_passe\": \"test123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=inscription",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "inscription"
+								}
+							]
+						},
+						"description": "Creer un nouveau compte utilisateur.\n\n**Champs requis**:\n- nom: Nom complet\n- email: Adresse email unique\n- mot_de_passe: Minimum 6 caracteres"
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Connexion (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Connexion reussie\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Role admin\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.role).to.eql(\"admin\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@annonces.com\",\n    \"mot_de_passe\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=connexion",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "connexion"
+								}
+							]
+						},
+						"description": "Connexion avec le compte admin.\n\nLes cookies de session sont automatiquement geres par Postman."
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Connexion (Utilisateur)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Connexion reussie\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Role utilisateur\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.role).to.eql(\"utilisateur\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@test.com\",\n    \"mot_de_passe\": \"user123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=connexion",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "connexion"
+								}
+							]
+						},
+						"description": "Connexion avec le compte utilisateur standard."
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 Verifier connexion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check connexion\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=check",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "check"
+								}
+							]
+						},
+						"description": "Verifie l'etat de connexion actuel et retourne les infos de l'utilisateur si connecte."
+					},
+					"response": []
+				},
+				{
+					"name": "1.5 Profil utilisateur",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Profil recupere\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data.utilisateur).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=profil",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "profil"
+								}
+							]
+						},
+						"description": "Recupere le profil complet de l'utilisateur connecte avec le nombre d'annonces."
+					},
+					"response": []
+				},
+				{
+					"name": "1.6 Modifier profil",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Nouveau Nom\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=profil",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "profil"
+								}
+							]
+						},
+						"description": "Modifier les informations du profil.\n\n**Champs modifiables**:\n- nom\n- email\n- mot_de_passe"
+					},
+					"response": []
+				},
+				{
+					"name": "1.7 Deconnexion",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=deconnexion",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "deconnexion"
+								}
+							]
+						},
+						"description": "Deconnecte l'utilisateur et detruit la session."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints pour gerer l'authentification des utilisateurs."
+		},
+		{
+			"name": "2. Annonces",
+			"item": [
+				{
+					"name": "2.1 Liste des annonces",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Liste recuperee\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"    pm.expect(jsonData.pagination).to.have.property('total');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"]
+						},
+						"description": "Recupere la liste de toutes les annonces actives avec pagination."
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Liste avec filtres",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Filtres appliques\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.filtres).to.have.property('categorie');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php?page=1&limit=10&categorie=1&prix_min=0&prix_max=1000&tri=prix&ordre=ASC",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "categorie",
+									"value": "1"
+								},
+								{
+									"key": "prix_min",
+									"value": "0"
+								},
+								{
+									"key": "prix_max",
+									"value": "1000"
+								},
+								{
+									"key": "tri",
+									"value": "prix"
+								},
+								{
+									"key": "ordre",
+									"value": "ASC"
+								}
+							]
+						},
+						"description": "Liste des annonces avec filtres.\n\n**Parametres disponibles**:\n- page: Numero de page\n- limit: Nombre de resultats (max 100)\n- categorie: ID de la categorie\n- q: Recherche textuelle\n- prix_min / prix_max: Fourchette de prix\n- tri: date_publication, prix, titre\n- ordre: ASC ou DESC"
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Recherche annonces",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php?q=appartement",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"],
+							"query": [
+								{
+									"key": "q",
+									"value": "appartement"
+								}
+							]
+						},
+						"description": "Recherche dans les titres et descriptions des annonces."
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Detail annonce",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Annonce recuperee\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data).to.have.property('id');",
+									"    pm.expect(jsonData.data).to.have.property('titre');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php?id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Recupere les details complets d'une annonce specifique."
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Creer annonce",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Annonce creee\", function () {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data).to.have.property('id');",
+									"    ",
+									"    // Sauvegarder l'ID pour les tests suivants",
+									"    pm.environment.set(\"annonce_id\", jsonData.data.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Test Postman - Annonce\",\n    \"description\": \"Cette annonce a ete creee via Postman pour tester l'API REST.\",\n    \"categorie_id\": 1,\n    \"prix\": 150.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"]
+						},
+						"description": "Creer une nouvelle annonce (authentification requise).\n\n**Champs requis**:\n- titre: Max 200 caracteres\n- description: Description de l'annonce\n\n**Champs optionnels**:\n- categorie_id: ID de la categorie\n- prix: Prix en euros\n- image: URL de l'image"
+					},
+					"response": []
+				},
+				{
+					"name": "2.6 Modifier annonce",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Annonce modifiee\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Test Postman - Annonce MODIFIEE\",\n    \"prix\": 175.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php?id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Modifier une annonce existante.\n\nSeul le proprietaire ou un admin peut modifier une annonce."
+					},
+					"response": []
+				},
+				{
+					"name": "2.7 Supprimer annonce",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Annonce supprimee\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php?id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Supprimer une annonce.\n\nSeul le proprietaire ou un admin peut supprimer une annonce."
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD complet pour les annonces."
+		},
+		{
+			"name": "3. Categories",
+			"item": [
+				{
+					"name": "3.1 Liste des categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Categories recuperees\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/categories.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories.php"]
+						},
+						"description": "Recupere toutes les categories avec le nombre d'annonces."
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Detail categorie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Categorie recuperee\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data.categorie).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/categories.php?id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Recupere les details d'une categorie avec ses annonces."
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Creer categorie (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Categorie creee\", function () {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Test Postman\",\n    \"description\": \"Categorie creee via Postman\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories.php"]
+						},
+						"description": "Creer une nouvelle categorie.\n\n**Requiert**: Connexion admin"
+					},
+					"response": []
+				},
+				{
+					"name": "3.4 Modifier categorie (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Categorie Modifiee\",\n    \"description\": \"Description mise a jour\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories.php?id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Modifier une categorie existante.\n\n**Requiert**: Connexion admin"
+					},
+					"response": []
+				},
+				{
+					"name": "3.5 Supprimer categorie (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/categories.php?id=5",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Supprimer une categorie.\n\n**Requiert**: Connexion admin\n**Attention**: Impossible si des annonces sont liees."
+					},
+					"response": []
+				}
+			],
+			"description": "Gestion des categories (certaines actions reservees admin)."
+		},
+		{
+			"name": "4. Administration",
+			"item": [
+				{
+					"name": "4.1 Statistiques generales",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Stats recuperees\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data).to.have.property('total_annonces');",
+									"    pm.expect(jsonData.data).to.have.property('total_utilisateurs');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/stats.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "stats.php"]
+						},
+						"description": "Statistiques generales du systeme.\n\n**Requiert**: Connexion admin"
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Stats par categorie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Stats categories\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/stats.php?type=categories",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "stats.php"],
+							"query": [
+								{
+									"key": "type",
+									"value": "categories"
+								}
+							]
+						},
+						"description": "Statistiques par categorie."
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 Stats utilisateurs actifs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/stats.php?type=utilisateurs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "stats.php"],
+							"query": [
+								{
+									"key": "type",
+									"value": "utilisateurs"
+								}
+							]
+						},
+						"description": "Liste des utilisateurs les plus actifs."
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 Historique des actions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/stats.php?type=historique&limit=50",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "stats.php"],
+							"query": [
+								{
+									"key": "type",
+									"value": "historique"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						},
+						"description": "Historique des actions (connexions, creations, modifications, suppressions)."
+					},
+					"response": []
+				},
+				{
+					"name": "4.5 Activer annonce",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/moderation.php?action=activer&id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "moderation.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "activer"
+								},
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Activer une annonce.\n\n**Requiert**: Connexion admin"
+					},
+					"response": []
+				},
+				{
+					"name": "4.6 Desactiver annonce",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/moderation.php?action=desactiver&id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "moderation.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "desactiver"
+								},
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Desactiver une annonce.\n\n**Requiert**: Connexion admin"
+					},
+					"response": []
+				},
+				{
+					"name": "4.7 Liste utilisateurs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/utilisateurs.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "utilisateurs.php"]
+						},
+						"description": "Liste de tous les utilisateurs.\n\n**Requiert**: Connexion admin"
+					},
+					"response": []
+				},
+				{
+					"name": "4.8 Activer utilisateur",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/utilisateurs.php?id=2&action=activer",
+							"host": ["{{base_url}}"],
+							"path": ["api", "utilisateurs.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								},
+								{
+									"key": "action",
+									"value": "activer"
+								}
+							]
+						},
+						"description": "Activer un compte utilisateur."
+					},
+					"response": []
+				},
+				{
+					"name": "4.9 Desactiver utilisateur",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/utilisateurs.php?id=2&action=desactiver",
+							"host": ["{{base_url}}"],
+							"path": ["api", "utilisateurs.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								},
+								{
+									"key": "action",
+									"value": "desactiver"
+								}
+							]
+						},
+						"description": "Desactiver un compte utilisateur."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints d'administration (reservees aux admins)."
+		},
+		{
+			"name": "5. Tests Validation",
+			"item": [
+				{
+					"name": "5.1 Erreur - Email invalide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Erreur email invalide\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(false);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Test\",\n    \"email\": \"email-invalide\",\n    \"mot_de_passe\": \"test123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=inscription",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "inscription"
+								}
+							]
+						},
+						"description": "Test de validation: email invalide doit retourner une erreur 400."
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 Erreur - Mot de passe court",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Erreur mot de passe court\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(false);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Test\",\n    \"email\": \"test@test.com\",\n    \"mot_de_passe\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth.php?action=inscription",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth.php"],
+							"query": [
+								{
+									"key": "action",
+									"value": "inscription"
+								}
+							]
+						},
+						"description": "Test de validation: mot de passe < 6 caracteres doit retourner une erreur."
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 Erreur - Non authentifie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Erreur non authentifie\", function () {",
+									"    pm.response.to.have.status(401);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(false);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Test\",\n    \"description\": \"Test\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"]
+						},
+						"description": "Test: creer une annonce sans etre connecte doit echouer."
+					},
+					"response": []
+				},
+				{
+					"name": "5.4 Erreur - Annonce inexistante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Erreur 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(false);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/annonces.php?id=99999",
+							"host": ["{{base_url}}"],
+							"path": ["api", "annonces.php"],
+							"query": [
+								{
+									"key": "id",
+									"value": "99999"
+								}
+							]
+						},
+						"description": "Test: annonce inexistante doit retourner 404."
+					},
+					"response": []
+				},
+				{
+					"name": "5.5 Erreur - Non admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Erreur acces refuse\", function () {",
+									"    var status = pm.response.code;",
+									"    pm.expect([401, 403]).to.include(status);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/stats.php",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "stats.php"]
+						},
+						"description": "Test: acces admin sans droits doit echouer."
+					},
+					"response": []
+				}
+			],
+			"description": "Tests de validation et gestion des erreurs."
+		}
+	]
+}
